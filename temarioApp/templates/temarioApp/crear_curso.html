@@ -1,0 +1,95 @@
+{% extends 'temarioApp/base.html' %}
+
+{% block title %}Crear Nuevo Temario{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Columna del Formulario -->
+        <div class="col-md-6">
+            <h2 class="mt-4 text-primary">Generar Curso</h2>
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Título del curso -->
+                <div class="mb-3">
+                    <label for="titulo" class="form-label text-secondary">Título del Curso</label>
+                    <input type="text" class="form-control border-0 bg-light" id="titulo" name="titulo" required>
+                </div>
+
+                <!-- Días que se cursará -->
+                <div class="mb-3">
+                    <label for="dias" class="form-label text-secondary">Días que se cursará</label>
+                    <input type="text" class="form-control border-0 bg-light" id="dias" name="dias" required>
+                </div>
+
+                <!-- Horario del curso -->
+                <div class="mb-3">
+                    <label for="horario" class="form-label text-secondary">Horario del Curso</label>
+                    <input type="text" class="form-control border-0 bg-light" id="horario" name="horario" required>
+                </div>
+
+                <!-- Cantidad de participantes -->
+                <div class="mb-3">
+                    <label for="participantes" class="form-label text-secondary">Cantidad de Participantes</label>
+                    <input type="number" class="form-control border-0 bg-light" id="participantes" name="participantes" required>
+                </div>
+
+                <!-- Nombre del instructor -->
+                <div class="mb-3">
+                    <label for="instructor" class="form-label text-secondary">Nombre del Instructor</label>
+                    <input type="text" class="form-control border-0 bg-light" id="instructor" name="instructor" required>
+                </div>
+
+                <!-- Objetivo del curso -->
+                <div class="mb-3">
+                    <label for="objetivo" class="form-label text-secondary">Objetivo del Curso</label>
+                    <textarea class="form-control border-0 bg-light" id="objetivo" name="objetivo" rows="3" required></textarea>
+                </div>
+
+                <!-- Descripción del temario -->
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label text-secondary">Descripción del Temario</label>
+                    <textarea class="form-control border-0 bg-light" id="descripcion" name="descripcion" rows="4" required></textarea>
+                </div>
+
+                <!-- Nivel del curso -->
+                <div class="mb-3">
+                    <label for="nivel" class="form-label text-secondary">Nivel del Curso</label>
+                    <select class="form-select border-0 bg-light" id="nivel" name="nivel" required>
+                        <option value="básico">Básico</option>
+                        <option value="intermedio">Intermedio</option>
+                        <option value="avanzado">Avanzado</option>
+                    </select>
+                </div>
+
+                <!-- Modalidad -->
+                <div class="mb-3">
+                    <label for="modalidad" class="form-label text-secondary">Modalidad</label>
+                    <select class="form-select border-0 bg-light" id="modalidad" name="modalidad" required>
+                        <option value="presencial">Presencial</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <!-- Materiales necesarios -->
+                <div class="mb-3">
+                    <label for="materiales" class="form-label text-secondary">Materiales Necesarios</label>
+                    <textarea class="form-control border-0 bg-light" id="materiales" name="materiales" rows="3"></textarea>
+                </div>
+
+                <!-- Botón de Enviar -->
+                <button type="submit" class="btn btn-primary btn-lg">Generar</button>
+            </form>
+        </div>
+
+        <!-- Columna para otra sección (Temario Generado) -->
+        <div class="col-md-6">
+            <h2 class="mt-4 text-primary">Contenido Generado</h2>
+            <!-- Aquí puedes agregar el contenido dinámico que mostrarás -->
+            <p class="text-muted">Aquí se mostrará el contenido del curso generado...</p>
+        </div>
+    </div>
+</div>
+<br>
+{% endblock %}
