@@ -8,7 +8,7 @@
         <!-- Columna del Formulario -->
         <div class="col-md-6">
             <h2 class="mt-4 text-primary">Generar Curso</h2>
-            <form method="post">
+            <form method="post" action="{% url 'mostrar_curso' %}">
                 {% csrf_token %}
 
                 <!-- Título del curso -->
@@ -50,7 +50,7 @@
                 <!-- Descripción del temario -->
                 <div class="mb-3">
                     <label for="descripcion" class="form-label text-secondary">Descripción del Temario</label>
-                    <textarea class="form-control border-0 bg-light" id="descripcion" name="descripcion" rows="4" required></textarea>
+                    <textarea class="form-control border-0 bg-light" id="descripcion" name="descripcion" rows="4" ></textarea>
                 </div>
 
                 <!-- Nivel del curso -->

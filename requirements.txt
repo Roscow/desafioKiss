@@ -1,2 +1,6 @@
 django
 gunicorn
+openai
+requests
+markdown
+python-dotenv
