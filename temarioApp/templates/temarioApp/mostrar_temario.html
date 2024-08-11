@@ -1,0 +1,83 @@
+{% extends 'temarioApp/base.html' %}
+
+{% block title %}Mostrar Ejercicios{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="mt-4 text-primary">Solicitar Mejora o Modificación</h2>
+            <form method="post" action="{% url 'generar_ejercicios' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="mejora" class="form-label text-secondary">Escribe tu modificación o mejora</label>
+                    <textarea class="form-control border-0 bg-light" id="mejora" name="mejora" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-50">Solicitar Mejora</button>
+            </form>
+            <br>
+            <button type="button" id="toggle-mode-btn" class="btn btn-primary btn-lg w-50" onclick="toggleModo()">Modo Edición</button>
+            <br><br>
+            <form id="confirmar-form" method="post" action="{% url 'generar_ejercicios' %}">
+                {% csrf_token %}
+                <!-- Pasar días y horario como campos hidden -->
+                <input type="hidden" name="dias" value="{{ request.POST.dias }}">
+                <input type="hidden" name="horario" value="{{ request.POST.horario }}">
+                <input type="hidden" id="contenido-editado" name="contenido_editado" value="{{ temario }}">
+                <button type="submit" class="btn btn-primary btn-lg w-50">Confirmar temario</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h2 class="mt-4 text-primary">Ejercicios Generados</h2>
+            <div id="temario-generado" class="bg-light p-3" style="height: 600px; overflow-y: scroll; border: 1px solid #ced4da; border-radius: .25rem;">
+                {% if temario_html %}
+                    <div id="contenido-temario">{{ temario_html|safe }}</div>
+                {% elif error %}
+                    <p style="color: red;">{{ error }}</p>
+                {% else %}
+                    <p class="text-muted">No se han generado ejercicios aún.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+<script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+
+<script>
+    var modoEdicion = false;
+    var converter = new showdown.Converter();
+
+    function toggleModo() {
+        var contenidoTemario = document.getElementById('contenido-temario');
+        var toggleButton = document.getElementById('toggle-mode-btn');
+
+        if (!modoEdicion) {
+            var textarea = document.createElement('textarea');
+            textarea.className = 'form-control border-0 bg-light';
+            textarea.style.height = '550px';
+            textarea.value = contenidoTemario.innerText;
+            contenidoTemario.parentNode.replaceChild(textarea, contenidoTemario);
+            textarea.id = 'contenido-temario';
+            toggleButton.innerText = "Modo Vista";
+        } else {
+            var markdownText = document.getElementById('contenido-temario').value;
+            var htmlContent = converter.makeHtml(markdownText);
+            var div = document.createElement('div');
+            div.className = 'bg-light p-3';
+            div.style.height = '550px';
+            div.id = 'contenido-temario';
+            div.innerHTML = htmlContent;
+            document.getElementById('contenido-temario').parentNode.replaceChild(div, document.getElementById('contenido-temario'));
+            toggleButton.innerText = "Modo Edición";
+
+            // Actualizar el campo hidden con el contenido editado
+            document.getElementById('contenido-editado').value = markdownText;
+        }
+        
+        modoEdicion = !modoEdicion;
+    }
+</script>
+
+{% endblock %}

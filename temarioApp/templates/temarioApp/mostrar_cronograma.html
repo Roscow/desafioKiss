@@ -1,0 +1,97 @@
+{% extends 'temarioApp/base.html' %}
+
+{% block title %}Mostrar Cronograma{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sección para mostrar el cronograma completo -->
+    <h2 class="mt-4 text-primary">Cronograma Detallado</h2>
+    {% if cronograma_html %}
+        <div class="bg-light p-3 mb-5" style="border: 1px solid #ced4da; border-radius: .25rem;">
+            {{ cronograma_html|safe }}
+        </div>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <p class="text-muted">No se ha generado un cronograma aún.</p>
+    {% endif %}
+    
+    <!-- Sección para mostrar el temario completo debajo del cronograma -->
+    <h3 class="mt-4 text-primary">Temario Completo</h3>
+    {% if temario_html %}
+        <div class="bg-light p-3 mb-5" style="border: 1px solid #ced4da; border-radius: .25rem;">
+            {{ temario_html|safe }}
+        </div>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <p class="text-muted">No se ha generado un temario aún.</p>
+    {% endif %}
+    
+    <!-- Opciones -->
+    <h3 class="text-primary">Opciones</h3>
+    <form method="post" action="{% url 'crear_cronograma' %}">
+        {% csrf_token %}
+        <input type="hidden" name="dias" value="{{ request.POST.dias }}">
+        <input type="hidden" name="horario" value="{{ request.POST.horario }}">
+        <input type="hidden" id="contenido-editado" name="contenido_editado" value="{{ cronograma_html }}">
+        <div class="mb-3">
+            <label for="mejora" class="form-label text-secondary">Escribe tu modificación o mejora</label>
+            <textarea class="form-control border-0 bg-light" id="mejora" name="mejora" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-50">Solicitar Mejora</button>
+    </form>
+    <br>
+    <button type="button" id="toggle-mode-btn" class="btn btn-primary btn-lg w-50" onclick="toggleModo()">Modo Edición</button>
+    <br><br>
+    <form id="confirmar-form" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="cronograma_final" id="cronograma_final" value="{{ cronograma_html }}">
+        <button type="submit" class="btn btn-primary btn-lg w-50" onclick="guardarEdicion()">Confirmar Cronograma</button>
+    </form>
+</div>
+<br>
+
+<script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+
+<script>
+    var modoEdicion = false;
+
+    function toggleModo() {
+        var contenidoCronograma = document.getElementById('contenido-cronograma');
+        var toggleButton = document.getElementById('toggle-mode-btn');
+
+        if (!modoEdicion) {
+            var textarea = document.createElement('textarea');
+            textarea.className = 'form-control border-0 bg-light';
+            textarea.style.height = '550px';
+            textarea.value = contenidoCronograma.innerText;
+            contenidoCronograma.parentNode.replaceChild(textarea, contenidoCronograma);
+            textarea.id = 'contenido-cronograma';
+            toggleButton.innerText = "Modo Vista";
+        } else {
+            var markdownText = document.getElementById('contenido-cronograma').value;
+            var div = document.createElement('div');
+            div.className = 'bg-light p-3';
+            div.style.height = '550px';
+            div.id = 'contenido-cronograma';
+            div.innerHTML = markdownText;
+            document.getElementById('contenido-cronograma').parentNode.replaceChild(div, document.getElementById('contenido-cronograma'));
+            toggleButton.innerText = "Modo Edición";
+
+            // Actualizar el campo hidden con el contenido editado
+            document.getElementById('cronograma_final').value = markdownText;
+        }
+        
+        modoEdicion = !modoEdicion;
+    }
+
+    function guardarEdicion() {
+        if (modoEdicion) {
+            var textarea = document.getElementById('contenido-cronograma');
+            document.getElementById('cronograma_final').value = textarea.value;
+        }
+    }
+</script>
+
+{% endblock %}
