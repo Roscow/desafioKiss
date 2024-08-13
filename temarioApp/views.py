@@ -14,6 +14,8 @@ from django.shortcuts import render, get_object_or_404
 from .models import DatosBase, Temario, Cronograma
 from weasyprint import HTML
 import tempfile
+from django.http import HttpResponse
+
 
 def extraer_json(respuesta_api):
     """
