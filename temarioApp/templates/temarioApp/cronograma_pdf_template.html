@@ -20,7 +20,14 @@
 </head>
 <body>
     <h1>{{ datos_base.titulo }}</h1>
-    <h2>Cronograma Detallado</h2>
+    <h3>Cabecera:{{ datos_base.titulo}} </h3>
+    <h3>Objetivo:{{ datos_base.objetivo}} </h3>
+    <h3>Instructor {{datos_base.instructor}} </h3>
+    <h2>Contenido del curso</h2>
+    <div>
+        {{ temario_base|safe }}
+    </div>
+    <h2>Estructura del curso</h2>
     <div class="cronograma-content">
         {{ cronograma|safe }}
     </div>

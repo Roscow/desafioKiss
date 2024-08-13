@@ -103,7 +103,6 @@ def crear_temario(request):
 
 def mostrar_temario(request):
     clave_api =  os.getenv("GPT_API_KEY")
-
     if request.method == 'POST':
         #es regeneracion 
         if request.POST.get('id_datos_base'):
@@ -130,20 +129,11 @@ def mostrar_temario(request):
         #es modificacion 
         mejora = request.POST.get('mejora')
         if mejora:
-            print(mejora)
-            # Obtener el temario actual generado de la sesión
             temario_actual = request.POST.get('contenido-editado')
-            print(temario_actual)
-
             if not temario_actual:
                 return render(request, 'temarioApp/mostrar_temario.html', {'error': 'No hay temario disponible. Genera un curso primero.'})
-
-            # Crear un prompt combinando el temario actual con la mejora solicitada
             prompt = f"Edita este temario ... {temario_actual} ... \n\n devuelvelo completo, intenta mantener la base y solo realizar la siguiente mejora o modificación: {mejora}"
-
-            # Enviar el prompt a la API
-            url = "https://api.openai.com/v1/chat/completions"
-            
+            url = "https://api.openai.com/v1/chat/completions"    
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {clave_api}",
@@ -213,9 +203,7 @@ def mostrar_temario(request):
                     'id_datos_base': id_datos_base,
                     'temario': respuesta,
                     'temario_html': temario_html
-                }
-                print(temario_html)
-                print(respuesta)
+                }            
                 return render(request, 'temarioApp/mostrar_temario.html', context)
             else:
                 context = {'error': f"Error en la solicitud: {response.status_code} - {response.text}"}
@@ -233,23 +221,15 @@ def mostrar_temario(request):
 def mostrar_actividades(request):
     if request.method == 'POST':
         id_datos_base = request.POST.get('id_datos_base')
-        print(f"id datos base: {id_datos_base} ")
         contenido_editado = request.POST.get('contenido-editado')
-        print(f"")
-        print(f"contenido : {contenido_editado}")
         clave_api =  os.getenv("GPT_API_KEY")
         mejora = request.POST.get('mejora')
-        
         if mejora:
-            
             temario_actual = request.POST.get('contenido-editado')
             print(temario_actual)
             if not temario_actual:
                 return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'No hay temario disponible. Genera un curso primero.'})
-            # Crear un prompt combinando el temario actual con la mejora solicitada
             prompt = f"Edita este temario ... {temario_actual} ... \n\n devuelvelo completo, intenta mantener la base y solo realizar la siguiente mejora o modificación: {mejora}"
-
-            # Enviar el prompt a la API
             url = "https://api.openai.com/v1/chat/completions"
             
             headers = {
@@ -264,10 +244,8 @@ def mostrar_actividades(request):
                 ],
             }
             response = requests.post(url, json=data, headers=headers)
-
             if response.status_code == 200:
                 temario_generado = response.json()["choices"][0]["message"]["content"]
-                # Actualizar el temario en la sesión
                 request.session['temario'] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
                 context = { 
@@ -284,7 +262,6 @@ def mostrar_actividades(request):
             # Obtén la instancia de DatosBase usando id_datos_base
             datos_base = get_object_or_404(DatosBase, id=id_datos_base)
             print(datos_base)
-            # Guarda el temario en la base de datos con la clave foránea
             nuevo_temario = Temario.objects.create(
                 contenido=contenido_editado,
                 datos_base=datos_base
@@ -293,7 +270,6 @@ def mostrar_actividades(request):
             print(f"antes del save:{nuevo_temario}" )
             nuevo_temario.save()
             print(f"despues del save {nuevo_temario}")
-            #crear actividades
             temario_ejercicios = gpt_generacion_ejercicios(contenido_editado)
             request.session['temario'] = temario_ejercicios
             temario_html = markdown.markdown(temario_ejercicios)
@@ -303,9 +279,6 @@ def mostrar_actividades(request):
                 'temario_html': temario_html
             }
             return render(request, 'temarioApp/mostrar_actividades.html', context)
-        
-
-    # Si es GET, solo renderiza la página inicial
     return render(request, 'temarioApp/mostrar_actividades.html')
 
 def crear_cronograma(request):
@@ -313,13 +286,15 @@ def crear_cronograma(request):
     horario = request.POST.get('horario')
     temario_actual = request.POST.get('contenido-editado', '')
     id_datos = request.POST.get('id_datos_base')
+    #obtener temario
+    temario_obj = Temario.objects.get(datos_base_id=id_datos)
+    temario_base = temario_obj.contenido
     if not temario_actual or not dias or not horario:
-        return render(request, 'temarioApp/mostrar_ejercicios.html', {'error': 'Faltan datos para generar el cronograma.'})
+        return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'Faltan datos para generar el cronograma.'})
 
     clave_api = os.getenv("GPT_API_KEY")
     prompt = f"Con base en el siguiente temario:\n{temario_actual}\n\nGenera un cronograma detallado considerando los días de impartición: {dias} y el horario: {horario}. Distribuye los temas y los ejercicios prácticos de manera equilibrada, indica el tiempo de la revision del contenido del tema y del ejercicio practico, no me devuelvas fechas, no es necesario y la dame  el cronograma en formato HTML listo para ser insertado en una página web con estilos que me permitan ver la programacion para cada dia organizada ."
 
-    # Enviar el prompt a la API
     url = "https://api.openai.com/v1/chat/completions"
             
     headers = {
@@ -342,6 +317,7 @@ def crear_cronograma(request):
         temario_html = markdown.markdown(temario_actual)
 
         context = {
+            'temario_base': temario_base,
             'id_datos_base': id_datos,
             'cronograma_html': cronograma_html,
             'temario_html': temario_html  # Asegúrate de que esta variable contiene el HTML del temario
