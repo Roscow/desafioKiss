@@ -11,7 +11,7 @@ import re
 import json
 from django.utils import timezone  # Para manejar la fecha de creación
 from django.shortcuts import render, get_object_or_404
-from .models import DatosBase, Temario
+from .models import DatosBase, Temario, Cronograma
 from weasyprint import HTML
 import tempfile
 
