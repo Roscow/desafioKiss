@@ -359,7 +359,7 @@ def confirmar_cronograma(request):
 
         # Guarda el cronograma en la base de datos
         nuevo_cronograma = Cronograma.objects.create(
-            contenido=cronograma_final,
+            cronograma=cronograma_final,
             datos_base=datos_base
         )
         nuevo_cronograma.save()
