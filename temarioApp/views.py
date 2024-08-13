@@ -268,6 +268,7 @@ def mostrar_actividades(request):
                 request.session['temario'] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
                 context = { 
+                    'id_datos_base': id_datos_base,
                     'temario': temario_generado,
                     'temario_html': temario_html
                 }
@@ -294,6 +295,7 @@ def mostrar_actividades(request):
             request.session['temario'] = temario_ejercicios
             temario_html = markdown.markdown(temario_ejercicios)
             context = { 
+                'id_datos_base': id_datos_base,
                 'temario': temario_ejercicios,
                 'temario_html': temario_html
             }
@@ -307,7 +309,7 @@ def crear_cronograma(request):
     dias = request.POST.get('dias')
     horario = request.POST.get('horario')
     temario_actual = request.POST.get('contenido-editado', '')
-
+    id_datos = request.POST.get('id_datos_base')
     if not temario_actual or not dias or not horario:
         return render(request, 'temarioApp/mostrar_ejercicios.html', {'error': 'Faltan datos para generar el cronograma.'})
 
@@ -337,6 +339,7 @@ def crear_cronograma(request):
         temario_html = markdown.markdown(temario_actual)
 
         context = {
+            'id_datos_base': id_datos,
             'cronograma_html': cronograma_html,
             'temario_html': temario_html  # Asegúrate de que esta variable contiene el HTML del temario
 
