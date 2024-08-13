@@ -348,19 +348,47 @@ def confirmar_cronograma(request):
         #except Exception as e:
         #    datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
         # Guarda el cronograma en la base de datos
-        datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
+        #datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
+        datos_base = DatosBase.objects.last()
+        temario = Temario.objects.last()
+        
         nuevo_cronograma = Cronograma.objects.create(
             cronograma=cronograma_final,
             datos_base=datos_base
         )
         nuevo_cronograma.save()
-
+        #ahora que ya tengo cronograma y temario, mandar los datos al template
+        dias = datos_base.dias
+        horario = datos_base.horario
+        titulo = datos_base.titulo
+        cantidad_participantes = datos_base.cantidad_participantes
+        instructor = datos_base.instructor
+        objetivo = datos_base.objects
+        descripcion = datos_base.descripcion
+        nivel_del_curso = datos_base.nivel_del_curso
+        modalidad = datos_base.modalidad
+        materiales_necesarios = datos_base.materiales_necesarios
+        fecha_creacion = datos_base.fecha_creacion
         # Generar PDF del cronograma
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="cronograma_{datos_base.titulo}.pdf"'
-
+        context = {
+            'cronograma': cronograma_final, 
+            'temario':temario, 
+            'dias':dias,
+            'horario':horario,
+            'titulo':titulo,
+            'cantidad_participantes':cantidad_participantes,
+            'instructor':instructor,
+            'objetivo':objetivo,
+            'descripcion':descripcion,
+            'nivel_del_curso':nivel_del_curso,
+            'modalidad':modalidad,
+            'materiales_necesarios':materiales_necesarios,
+            'fecha_creacion':fecha_creacion
+            }
         # Renderizar el HTML del cronograma
-        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', {'cronograma': cronograma_final})
+        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', context )
 
         # Convertir HTML a PDF
         html = HTML(string=html_string)

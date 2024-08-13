@@ -19,6 +19,14 @@
     </style>
 </head>
 <body>
+    <h1>{{ titulo }}</h1>
+    <h3>Cabecera:{{ titulo}} </h3>
+    <h3>Objetivo:{{ objetivo}} </h3>
+    <h3>Instructor {{instructor}} </h3>
+    <h2>Contenido del curso</h2>
+    <div>
+        {{ temario|safe }}
+    </div>
     <h2>Estructura del curso</h2>
     <div class="cronograma-content">
         {{ cronograma|safe }}
