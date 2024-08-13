@@ -335,10 +335,16 @@ def crear_cronograma(request):
 def confirmar_cronograma(request):
     if request.method == 'POST':
         cronograma_final = request.POST.get('cronograma_final')
-        id_datos_base = request.POST.get('id_datos_base')[:1]
-        #obtener temario
-        temario_obj = Temario.objects.get(datos_base_id=id_datos_base)
-        temario_base = temario_obj.contenido
+        try:
+            id_datos_base = request.POST.get('id_datos_base2')[:1]
+            #obtener temario
+            temario_obj = Temario.objects.get(datos_base_id=id_datos_base)
+            temario_base = temario_obj.contenido
+        except Exception as e:
+            id_datos_base = request.POST.get('id_datos_base')[:1]
+            #obtener temario
+            temario_obj = Temario.objects.get(datos_base_id=id_datos_base)
+            temario_base = temario_obj.contenido
         # Obtén la instancia de DatosBase usando id_datos_base
         datos_base = get_object_or_404(DatosBase, id=id_datos_base)
 

@@ -50,6 +50,7 @@
         {% csrf_token %}
         <input type="hidden" name="id_datos_base" value="{{ id_datos_base }}">
         <input type="hidden" name="cronograma_final" id="cronograma_final" value="{{ cronograma_html }}">
+        <input type="hidden" id="id_datos_base2" name="id_datos_base2" value="{{id_datos_base}}">
         <button type="submit" class="btn btn-primary btn-lg w-50">Confirmar Cronograma</button>
     </form>
 </div>
