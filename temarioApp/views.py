@@ -286,9 +286,7 @@ def crear_cronograma(request):
     horario = request.POST.get('horario')
     temario_actual = request.POST.get('contenido-editado', '')
     id_datos = request.POST.get('id_datos_base')
-    #obtener temario
-    temario_obj = Temario.objects.get(datos_base_id=id_datos)
-    temario_base = temario_obj.contenido
+    
     if not temario_actual or not dias or not horario:
         return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'Faltan datos para generar el cronograma.'})
 
@@ -317,7 +315,6 @@ def crear_cronograma(request):
         temario_html = markdown.markdown(temario_actual)
 
         context = {
-            'temario_base': temario_base,
             'id_datos_base': id_datos,
             'cronograma_html': cronograma_html,
             'temario_html': temario_html  # Asegúrate de que esta variable contiene el HTML del temario
@@ -332,7 +329,9 @@ def confirmar_cronograma(request):
     if request.method == 'POST':
         cronograma_final = request.POST.get('cronograma_final')
         id_datos_base = request.POST.get('id_datos_base')
-
+        #obtener temario
+        temario_obj = Temario.objects.get(datos_base_id=id_datos_base)
+        temario_base = temario_obj.contenido
         # Obtén la instancia de DatosBase usando id_datos_base
         datos_base = get_object_or_404(DatosBase, id=id_datos_base)
 
@@ -348,7 +347,7 @@ def confirmar_cronograma(request):
         response['Content-Disposition'] = f'attachment; filename="cronograma_{datos_base.titulo}.pdf"'
 
         # Renderizar el HTML del cronograma
-        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', {'cronograma': cronograma_final})
+        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', {'cronograma': cronograma_final, 'temario_base': temario_base})
 
         # Convertir HTML a PDF
         html = HTML(string=html_string)
