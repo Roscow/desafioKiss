@@ -104,10 +104,11 @@ def crear_temario(request):
 def mostrar_temario(request):
     clave_api =  os.getenv("GPT_API_KEY")
     if request.method == 'POST':
+        id_datos_base =request.POST.get('id_datos_base')
         #es regeneracion 
         if request.POST.get('id_datos_base'):
-            id_datos =request.POST.get('id_datos_base')
-            print(f"el valor enviado desde formulario es: {id_datos}")
+            id_datos =id_datos_base
+            print(f"el valor enviado desde formulario es: {id_datos_base}")
             datos = DatosBase.objects.get(id=id_datos)
             titulo = datos.titulo
             descripcion = datos.descripcion
@@ -128,6 +129,7 @@ def mostrar_temario(request):
 
         #es modificacion 
         mejora = request.POST.get('mejora')
+        id_datos_base = request.POST.get('id_datos_base2')
         if mejora:
             temario_actual = request.POST.get('contenido-editado')
             if not temario_actual:
@@ -152,9 +154,9 @@ def mostrar_temario(request):
                 # Actualizar el temario en la sesión
                 request.session['temario'] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
-                id_datos_base2 = request.POST.get('id_datos_base')
                 context = { 
-                    'id_datos_base': id_datos,
+                    'id_datos_base2': id_datos_base,
+                    'id_datos_base': id_datos_base,
                     'temario': temario_generado,
                     'temario_html': temario_html
                 }
@@ -200,6 +202,7 @@ def mostrar_temario(request):
                 request.session['temario'] = respuesta
                 request.session['temario_html'] = markdown.markdown(temario_html)
                 context = { 
+                    'id_datos_base2': id_datos_base,
                     'id_datos_base': id_datos_base,
                     'temario': respuesta,
                     'temario_html': temario_html
