@@ -15,6 +15,7 @@ from .models import DatosBase, Temario, Cronograma
 from weasyprint import HTML
 import tempfile
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 
 def extraer_json(respuesta_api):
