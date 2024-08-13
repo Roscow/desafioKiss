@@ -363,7 +363,7 @@ def confirmar_cronograma(request):
         titulo = datos_base.titulo
         cantidad_participantes = datos_base.cantidad_participantes
         instructor = datos_base.instructor
-        objetivo = datos_base.objects
+        objetivo = datos_base.objetivo
         descripcion = datos_base.descripcion
         nivel_del_curso = datos_base.nivel_del_curso
         modalidad = datos_base.modalidad
