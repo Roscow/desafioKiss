@@ -252,6 +252,7 @@ def mostrar_actividades(request):
                 request.session['temario'] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
                 context = { 
+                    'id_datos_base2': id_datos_base,
                     'id_datos_base': id_datos_base,
                     'temario': temario_generado,
                     'temario_html': temario_html
@@ -277,6 +278,7 @@ def mostrar_actividades(request):
             request.session['temario'] = temario_ejercicios
             temario_html = markdown.markdown(temario_ejercicios)
             context = { 
+                'id_datos_base2': id_datos_base,
                 'id_datos_base': id_datos_base,
                 'temario': temario_ejercicios,
                 'temario_html': temario_html
