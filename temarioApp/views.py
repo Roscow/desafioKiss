@@ -226,12 +226,11 @@ def mostrar_actividades(request):
         id_datos_base = request.POST.get('id_datos_base')
         contenido_editado = request.POST.get('contenido-editado')
         clave_api =  os.getenv("GPT_API_KEY")
-        
+
         mejora = request.POST.get('mejora')
-        id_datos_base = request.POST.get('id_datos_base2')
         if mejora:
             temario_actual = request.POST.get('contenido-editado')
-            
+            id_datos_base = request.POST.get('id_datos_base2')
             print(temario_actual)
             if not temario_actual:
                 return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'No hay temario disponible. Genera un curso primero.'})
