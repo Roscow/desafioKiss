@@ -1,29 +1,6 @@
 from django.db import models
 
 # Create your models here.
-
-class Actividades(models.Model):
-    temario = models.ForeignKey('Temario', models.DO_NOTHING)
-    ejercicios = models.TextField()
-    fecha_creacion = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'actividades'
-
-
-class Cronograma(models.Model):
-    datos_base = models.ForeignKey('DatosBase', models.DO_NOTHING)
-    temario = models.ForeignKey('Temario', models.DO_NOTHING)
-    actividades = models.ForeignKey(Actividades, models.DO_NOTHING)
-    cronograma = models.TextField()
-    fecha_creacion = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'cronograma'
-
-
 class DatosBase(models.Model):
     titulo = models.CharField(max_length=255)
     horario = models.TextField()
@@ -41,6 +18,14 @@ class DatosBase(models.Model):
         managed = False
         db_table = 'datos_base'
 
+class Actividades(models.Model):
+    temario = models.ForeignKey('Temario', models.DO_NOTHING)
+    ejercicios = models.TextField()
+    fecha_creacion = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'actividades'
 
 class Temario(models.Model):
     datos_base = models.ForeignKey(DatosBase, models.DO_NOTHING)
@@ -50,3 +35,20 @@ class Temario(models.Model):
     class Meta:
         managed = False
         db_table = 'temario'
+
+
+class Cronograma(models.Model):
+    datos_base = models.ForeignKey('DatosBase', models.DO_NOTHING)
+    temario = models.ForeignKey(Temario, on_delete=models.SET_NULL, null=True, blank=True)
+    actividades = models.ForeignKey(Actividades, on_delete=models.SET_NULL, null=True, blank=True)
+    cronograma = models.TextField()
+    fecha_creacion = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'cronograma'
+
+
+
+
+
