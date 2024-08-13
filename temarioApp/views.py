@@ -335,17 +335,18 @@ def crear_cronograma(request):
 def confirmar_cronograma(request):
     if request.method == 'POST':
         cronograma_final = request.POST.get('cronograma_final')
-        id_datos_base2 = request.POST.get('id_datos_base2')[:1]
-        id_datos_base1 =  request.POST.get('id_datos_base')[:1]
-        temario_obj = Temario.objects.filter(datos_base_id=id_datos_base2)
-        if(temario_obj.count ==0 ):
-            temario_obj = Temario.objects.filter(datos_base_id=id_datos_base1)
-        temario_base = temario_obj.contenido
-        try:
-            datos_base = get_object_or_404(DatosBase, id=id_datos_base1)
-        except Exception as e:
-            datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
-
+        id_datos_base2 = request.POST.get('id_datos_base2')
+        print(id_datos_base2)
+        id_datos_base1 =  request.POST.get('id_datos_base')
+        print(id_datos_base1)
+        #temario_obj = Temario.objects.filter(datos_base_id=id_datos_base2)
+        #if(temario_obj.count ==0 ):
+        #    temario_obj = Temario.objects.filter(datos_base_id=id_datos_base1)
+        #temario_base = temario_obj.contenido
+        #try:
+        #    datos_base = get_object_or_404(DatosBase, id=id_datos_base1)
+        #except Exception as e:
+        #    datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
         # Guarda el cronograma en la base de datos
         nuevo_cronograma = Cronograma.objects.create(
             cronograma=cronograma_final,
