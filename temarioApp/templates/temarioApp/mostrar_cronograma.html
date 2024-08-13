@@ -46,7 +46,7 @@
     <br><br>
 
    
-    <form id="confirmar-form" method="post" action="{% url 'confirmar_cronograma' %}" onsubmit="guardarEdicion()">
+    <form id="confirmar-form" method="post" action="{% url 'confirmar_cronograma' %}" onsubmit="guardarEdicion()" target="_blank">
         {% csrf_token %}
         <input type="hidden" name="id_datos_base" value="{{ id_datos_base }}">
         <input type="hidden" name="cronograma_final" id="cronograma_final" value="{{ cronograma_html }}">

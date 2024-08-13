@@ -372,9 +372,10 @@ def confirmar_cronograma(request):
         # Generar PDF del cronograma
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="cronograma_{datos_base.titulo}.pdf"'
+        temario_html = markdown.markdown(temario.contenido)
         context = {
             'cronograma': cronograma_final, 
-            'temario':temario, 
+            'temario':temario_html, 
             'dias':dias,
             'horario':horario,
             'titulo':titulo,
@@ -389,7 +390,7 @@ def confirmar_cronograma(request):
             }
         # Renderizar el HTML del cronograma
         html_string = render_to_string('temarioApp/cronograma_pdf_template.html', context )
-
+    
         # Convertir HTML a PDF
         html = HTML(string=html_string)
         result = html.write_pdf()
