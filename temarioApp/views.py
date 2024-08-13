@@ -348,6 +348,7 @@ def confirmar_cronograma(request):
         #except Exception as e:
         #    datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
         # Guarda el cronograma en la base de datos
+        datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
         nuevo_cronograma = Cronograma.objects.create(
             cronograma=cronograma_final,
             datos_base=datos_base
@@ -359,7 +360,7 @@ def confirmar_cronograma(request):
         response['Content-Disposition'] = f'attachment; filename="cronograma_{datos_base.titulo}.pdf"'
 
         # Renderizar el HTML del cronograma
-        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', {'cronograma': cronograma_final, 'temario_base': temario_base})
+        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', {'cronograma': cronograma_final})
 
         # Convertir HTML a PDF
         html = HTML(string=html_string)
