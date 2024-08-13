@@ -95,6 +95,30 @@ def gpt_generacion_ejercicios(temario_actual):
     else:
         return False
 
+def gpt_sugerencias_mejora():
+    print("creando ejercicios gpt" )
+    clave_api = os.getenv("GPT_API_KEY")
+    prompt = f"dame 3 sugerencias para mejorar un posible temario ,que sea conciso, sin descripcion"
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {clave_api}",
+    }
+    data = {
+        "model": "gpt-4",
+        "messages": [
+            {"role": "system", "content": "Eres un asistente que ayuda a mejorar un temario"},
+            {"role": "user", "content": prompt}
+        ],
+    }
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        sugerencia = response.json()["choices"][0]["message"]["content"]
+        return sugerencia
+    else:
+        return False
+
 def index(request):
     return render(request, 'temarioApp/base.html')
 
@@ -103,7 +127,9 @@ def crear_temario(request):
 
 def mostrar_temario(request):
     clave_api =  os.getenv("GPT_API_KEY")
+    sugerir_modificaciones =f"Sugerencias:  \n{gpt_sugerencias_mejora()}" 
     if request.method == 'POST':
+        
         id_datos_base =request.POST.get('id_datos_base')
         #es regeneracion 
         if request.POST.get('id_datos_base'):
@@ -158,7 +184,8 @@ def mostrar_temario(request):
                     'id_datos_base2': id_datos_base,
                     'id_datos_base': id_datos_base,
                     'temario': temario_generado,
-                    'temario_html': temario_html
+                    'temario_html': temario_html,
+                    'sugerir_modificaciones':sugerir_modificaciones
                 }
                 return render(request, 'temarioApp/mostrar_temario.html', context)
             else:
@@ -205,7 +232,8 @@ def mostrar_temario(request):
                     'id_datos_base2': id_datos_base,
                     'id_datos_base': id_datos_base,
                     'temario': respuesta,
-                    'temario_html': temario_html
+                    'temario_html': temario_html,
+                    'sugerir_modificaciones':sugerir_modificaciones
                 }            
                 return render(request, 'temarioApp/mostrar_temario.html', context)
             else:

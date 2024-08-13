@@ -19,14 +19,23 @@
             <h2 class="mt-4 text-primary">Solicitar Mejora o Modificación</h2>
             <form method="post" action="{% url 'mostrar_temario' %}" onsubmit="syncTextareaToHiddenField()">
                 {% csrf_token %}
+                 <!-- Contenedor desplazable para mostrar sugerencias -->
+                 <div class="suggestions-container bg-light border rounded p-3 mb-3" style="height: 200px; overflow-y: auto;">
+                    {{ sugerir_modificaciones }}
+                </div>
+
                 <div class="mb-3">
                     <label for="mejora" class="form-label text-secondary">Escribe tu modificación o mejora</label>
-                    <textarea class="form-control border-0 bg-light" id="mejora" name="mejora" rows="4" required></textarea>
+                    <textarea class="form-control border-0 bg-light" id="mejora" name="mejora" rows="4" required placeholder="Elimina el subtema 2.1 ...."></textarea>
                     <input type="hidden" id="contenido-editado" name="contenido-editado" value="{{temario}}">
-                    <input type="text" id="id_datos_base2" name="id_datos_base2" value="{{id_datos_base}}">
+                    <input type="hidden" id="id_datos_base2" name="id_datos_base2" value="{{id_datos_base}}">
                 </div>
+
+               
+
                 <button type="submit" class="btn btn-primary btn-lg w-50">Solicitar Mejora</button>
             </form>
+
             <br>
             <form id="confirmar-form" method="post" action="{% url 'mostrar_temario' %}">
                 {% csrf_token %}
