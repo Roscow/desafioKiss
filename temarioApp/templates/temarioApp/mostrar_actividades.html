@@ -8,8 +8,8 @@
         <div class="step-navigation">
             <ul>
                 <li class="step ">1. Datos base</li>
-                <li class="step active">2. Temas y subtemas</li>
-                <li class="step">3. Actividades</li>
+                <li class="step">2. Temas y subtemas</li>
+                <li class="step active">3. Actividades</li>
                 <li class="step">4. Cronograma</li>
             </ul>
         </div>        
@@ -17,46 +17,38 @@
     <div class="row">
         <div class="col-md-6">
             <h2 class="mt-4 text-primary">Solicitar Mejora o Modificación</h2>
-            <form method="post" action="{% url 'mostrar_temario' %}" onsubmit="syncTextareaToHiddenField()">
+            <form method="post" action="{% url 'mostrar_actividades' %}"  onsubmit="syncTextareaToHiddenField()">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="mejora" class="form-label text-secondary">Escribe tu modificación o mejora</label>
                     <textarea class="form-control border-0 bg-light" id="mejora" name="mejora" rows="4" required></textarea>
                     <input type="hidden" id="contenido-editado" name="contenido-editado" value="{{temario}}">
                     <input type="text" id="id_datos_base" value="{{id_datos_base}}">
+                
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg w-50">Solicitar Mejora</button>
             </form>
             <br>
-            <form id="confirmar-form" method="post" action="{% url 'mostrar_temario' %}">
-                {% csrf_token %}
-                <input type="hidden" name="id_datos_base" value="{{id_datos_base}}">
-                <button type="submit" class="btn btn-primary btn-lg w-50">Regenerar</button>
-            </form>
-
-            <br>
             <button type="button" id="toggle-mode-btn" class="btn btn-primary btn-lg w-50" onclick="toggleModo()">Modo Edición</button>
             <br><br>
-            <form id="confirmar-form" method="post" action="{% url 'mostrar_actividades' %}" onsubmit="syncTextareaToHiddenField()">
+            <form id="crear-cronograma-form" method="post" action="{% url 'crear_cronograma' %}" onsubmit="syncTextareaToHiddenField()">
                 {% csrf_token %}
-                <!-- Pasar días y horario como campos hidden -->
                 <input type="hidden" name="dias" value="{{ request.POST.dias }}">
                 <input type="hidden" name="horario" value="{{ request.POST.horario }}">
-                <input type="hidden" name="id_datos_base" value="{{id_datos_base}}">
                 <input type="hidden" id="contenido-editado" name="contenido-editado" value="{{ temario }}">
-                <button type="submit" class="btn btn-primary btn-lg w-50">Confirmar temario</button>
+                <input type="hidden" name="id_datos_base" value="{{id_datos_base}}">
+                <button type="submit" class="btn btn-primary btn-lg w-50">Crear Cronograma</button>
             </form>
-
         </div>
         <div class="col-md-6">
-            <h2 class="mt-4 text-primary">Temario</h2>
+            <h2 class="mt-4 text-primary">Ejercicios Generados</h2>
             <div id="temario-generado" class="bg-light p-3" style="height: 600px; overflow-y: scroll; border: 1px solid #ced4da; border-radius: .25rem;">
                 {% if temario_html %}
-                    <div name="contenido-temario" id="contenido-temario">{{ temario_html|safe }}</div>
+                    <div id="contenido-temario">{{ temario_html|safe }}</div>
                 {% elif error %}
                     <p style="color: red;">{{ error }}</p>
                 {% else %}
-                    <p class="text-muted">No se han generado temario aún.</p>
+                    <p class="text-muted">No se han generado ejercicios aún.</p>
                 {% endif %}
             </div>
         </div>
