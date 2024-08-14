@@ -27,6 +27,18 @@
     {% else %}
         <p class="text-muted">No se ha generado un temario aún.</p>
     {% endif %}
+
+    <!-- Sección para mostrar las actividades generadas -->
+    <h3 class="mt-4 text-primary">Actividades Generadas</h3>
+    {% if actividades_html %}
+        <div class="bg-light p-3 mb-5" style="border: 1px solid #ced4da; border-radius: .25rem;">
+            {{ actividades_html|safe }}
+        </div>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <p class="text-muted">No se han generado actividades aún.</p>
+    {% endif %}
     
     <!-- Opciones -->
     <h3 class="text-primary">Opciones</h3>
@@ -45,7 +57,6 @@
     <button type="button" id="toggle-mode-btn" class="btn btn-primary btn-lg w-50" onclick="toggleModo()">Modo Edición</button>
     <br><br>
 
-   
     <form id="confirmar-form" method="post" action="{% url 'confirmar_cronograma' %}" onsubmit="guardarEdicion()" target="_blank">
         {% csrf_token %}
         <input type="hidden" name="id_datos_base" value="{{ id_datos_base }}">

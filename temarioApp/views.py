@@ -74,7 +74,7 @@ def gpt_generacion_temario(titulo, descripcion, objetivo, nivel):
 def gpt_generacion_ejercicios(temario_actual):
     print("creando ejercicios gpt" )
     clave_api = os.getenv("GPT_API_KEY")
-    prompt = f"Edita este temario:\n{temario_actual}\n\nDevuélvelo completo, mantén la base y agrega ejercicios prácticos detallados para cada tema."
+    prompt = f"basado en  este temario:\n{temario_actual}\n\n, crea actividades y  ejercicios prácticos detallados para cada tema. que me ayuden a trabajar los temas a ver."
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
         "Content-Type": "application/json",
@@ -129,35 +129,15 @@ def mostrar_temario(request):
     clave_api =  os.getenv("GPT_API_KEY")
     sugerir_modificaciones =f"Sugerencias:  \n{gpt_sugerencias_mejora()}" 
     if request.method == 'POST':
-        
-        id_datos_base =request.POST.get('id_datos_base')
-        #es regeneracion 
-        if request.POST.get('id_datos_base'):
-            id_datos =id_datos_base
-            print(f"el valor enviado desde formulario es: {id_datos_base}")
-            datos = DatosBase.objects.get(id=id_datos)
-            titulo = datos.titulo
-            descripcion = datos.descripcion
-            objetivo = datos.objetivo
-            nivel = datos.nivel_del_curso
-            respuesta = gpt_generacion_temario(titulo, descripcion, objetivo, nivel)
-            if (respuesta is not False):
-                temario_html = markdown.markdown(respuesta)
-                context = { 
-                    'id_datos_base': id_datos,
-                    'temario': respuesta,
-                    'temario_html': temario_html
-                }
-                return render(request, 'temarioApp/mostrar_temario.html', context)
-            else:
-                context = {'error': f"Error en la solicitud: {response.status_code} - {response.text}"}
-                return render(request, 'temarioApp/mostrar_temario.html', context)
-
+        print("variables pasadas a temario")
+        for key, value in request.session.items():
+            print(f"{key}: {value}")
+       
         #es modificacion 
         mejora = request.POST.get('mejora')
-        id_datos_base = request.POST.get('id_datos_base2')
         if mejora:
             temario_actual = request.POST.get('contenido-editado')
+            request.session['temario'] = temario_actual
             if not temario_actual:
                 return render(request, 'temarioApp/mostrar_temario.html', {'error': 'No hay temario disponible. Genera un curso primero.'})
             prompt = f"Edita este temario ... {temario_actual} ... \n\n devuelvelo completo, intenta mantener la base y solo realizar la siguiente mejora o modificación: {mejora}"
@@ -181,12 +161,11 @@ def mostrar_temario(request):
                 request.session['temario'] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
                 context = { 
-                    'id_datos_base2': id_datos_base,
-                    'id_datos_base': id_datos_base,
                     'temario': temario_generado,
                     'temario_html': temario_html,
                     'sugerir_modificaciones':sugerir_modificaciones
                 }
+                
                 return render(request, 'temarioApp/mostrar_temario.html', context)
             else:
                 context = {'error': f"Error en la solicitud: {response.status_code} - {response.text}"}
@@ -204,23 +183,17 @@ def mostrar_temario(request):
             modalidad = request.POST.get('modalidad')
             materiales = request.POST.get('materiales')
 
-            #guardar los datos en la bd ...
-            nuevo_curso = DatosBase(
-                titulo=titulo,
-                horario=horario,
-                cantidad_participantes=participantes,
-                instructor=instructor,
-                objetivo=objetivo,
-                descripcion=descripcion,
-                nivel_del_curso=nivel,
-                modalidad=modalidad,
-                materiales_necesarios=materiales,
-                fecha_creacion=timezone.now(),
-                dias = dias
-            )
-            nuevo_curso.save()
-            print(nuevo_curso.id)
-            id_datos_base = nuevo_curso.id
+            request.session['titulo'] = request.POST.get('titulo')
+            request.session['dias'] = request.POST.get('dias')
+            request.session['horario'] = request.POST.get('horario')
+            request.session['participantes'] = request.POST.get('participantes')
+            request.session['instructor'] = request.POST.get('instructor')
+            request.session['objetivo'] = request.POST.get('objetivo')
+            request.session['descripcion'] = request.POST.get('descripcion')
+            request.session['nivel'] = request.POST.get('nivel')
+            request.session['modalidad'] = request.POST.get('modalidad')
+            request.session['materiales'] = request.POST.get('materiales')
+    
             #generar temario 
             respuesta = gpt_generacion_temario(titulo, descripcion, objetivo, nivel )
            
@@ -229,8 +202,6 @@ def mostrar_temario(request):
                 request.session['temario'] = respuesta
                 request.session['temario_html'] = markdown.markdown(temario_html)
                 context = { 
-                    'id_datos_base2': id_datos_base,
-                    'id_datos_base': id_datos_base,
                     'temario': respuesta,
                     'temario_html': temario_html,
                     'sugerir_modificaciones':sugerir_modificaciones
@@ -251,18 +222,19 @@ def mostrar_temario(request):
 
 def mostrar_actividades(request):
     if request.method == 'POST':
-        id_datos_base = request.POST.get('id_datos_base')
+        print("variables pasadas a actividades")
+        for key, value in request.session.items():
+            print(f"{key}: {value}")
         contenido_editado = request.POST.get('contenido-editado')
         clave_api =  os.getenv("GPT_API_KEY")
 
         mejora = request.POST.get('mejora')
         if mejora:
             temario_actual = request.POST.get('contenido-editado')
-            id_datos_base = request.POST.get('id_datos_base2')
             print(temario_actual)
             if not temario_actual:
                 return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'No hay temario disponible. Genera un curso primero.'})
-            prompt = f"Edita este temario ... {temario_actual} ... \n\n devuelvelo completo, intenta mantener la base y solo realizar la siguiente mejora o modificación: {mejora}"
+            prompt = f"realiza las siguientes mejoras para estas actividades practicas ... {temario_actual} ... \n\n devuelvelo completo, intenta mantener la base y solo realizar la siguiente mejora o modificación: {mejora}"
             url = "https://api.openai.com/v1/chat/completions"
             
             headers = {
@@ -272,18 +244,16 @@ def mostrar_actividades(request):
             data = {
                 "model": "gpt-4",
                 "messages": [
-                    {"role": "system", "content": "Eres un asistente que ayuda a generar y modificar temarios de cursos."},
+                    {"role": "system", "content": "Eres un asistente que ayuda a generar y modificar actividade practicas de cursos."},
                     {"role": "user", "content": prompt}
                 ],
             }
             response = requests.post(url, json=data, headers=headers)
             if response.status_code == 200:
                 temario_generado = response.json()["choices"][0]["message"]["content"]
-                request.session['temario'] = temario_generado
+                request.session['actividades '] = temario_generado
                 temario_html = markdown.markdown(temario_generado)
                 context = { 
-                    'id_datos_base2': id_datos_base,
-                    'id_datos_base': id_datos_base,
                     'temario': temario_generado,
                     'temario_html': temario_html
                 }
@@ -293,40 +263,27 @@ def mostrar_actividades(request):
                 return render(request, 'temarioApp/mostrar_actividades.html', context)
 
         else:
-            # Obtén la instancia de DatosBase usando id_datos_base
-            datos_base = get_object_or_404(DatosBase, id=id_datos_base)
-            print(datos_base)
-            nuevo_temario = Temario.objects.create(
-                contenido=contenido_editado,
-                datos_base=datos_base
-            )
-            print("si se crea el objeto....")
-            print(f"antes del save:{nuevo_temario}" )
-            nuevo_temario.save()
-            print(f"despues del save {nuevo_temario}")
-            temario_ejercicios = gpt_generacion_ejercicios(contenido_editado)
-            request.session['temario'] = temario_ejercicios
-            temario_html = markdown.markdown(temario_ejercicios)
+            actividades = gpt_generacion_ejercicios(contenido_editado)
+            request.session['actividades'] = actividades
+            ejercicios_html = markdown.markdown(actividades)
             context = { 
-                'id_datos_base2': id_datos_base,
-                'id_datos_base': id_datos_base,
-                'temario': temario_ejercicios,
-                'temario_html': temario_html
+                'temario': actividades,
+                'temario_html': ejercicios_html,
             }
             return render(request, 'temarioApp/mostrar_actividades.html', context)
     return render(request, 'temarioApp/mostrar_actividades.html')
 
 def crear_cronograma(request):
-    dias = request.POST.get('dias')
-    horario = request.POST.get('horario')
-    temario_actual = request.POST.get('contenido-editado', '')
-    id_datos = request.POST.get('id_datos_base')
-    
-    if not temario_actual or not dias or not horario:
-        return render(request, 'temarioApp/mostrar_actividades.html', {'error': 'Faltan datos para generar el cronograma.'})
-
+    print("variables pasadas a actividades")
+    for key, value in request.session.items():
+        print(f"{key}: {value}")
     clave_api = os.getenv("GPT_API_KEY")
-    prompt = f"Con base en el siguiente temario:\n{temario_actual}\n\nGenera un cronograma detallado considerando los días de impartición: {dias} y el horario: {horario}. Distribuye los temas y los ejercicios prácticos de manera equilibrada, indica el tiempo de la revision del contenido del tema y del ejercicio practico, no me devuelvas fechas, no es necesario y la dame  el cronograma en formato HTML listo para ser insertado en una página web con estilos que me permitan ver la programacion para cada dia organizada ."
+    temario_actual = request.session.get('temario')
+    actividades = request.session.get('actividades')
+    dias = request.session.get('dias')
+    horario = request.session.get('horario')
+
+    prompt = f"Con base en el siguiente temario:\n{temario_actual}\n\n y la siguiente pauta de actividades {actividades} Genera un cronograma detallado considerando los días de impartición: {dias} y el horario: {horario}. Distribuye los temas y los ejercicios prácticos de manera equilibrada, indica el tiempo de la revision del contenido del tema y del ejercicio practico, no me devuelvas fechas, no es necesario y la dame  el cronograma en formato HTML listo para ser insertado en una página web con estilos que me permitan ver la programacion para cada dia organizada ."
 
     url = "https://api.openai.com/v1/chat/completions"
             
@@ -346,14 +303,20 @@ def crear_cronograma(request):
     if response.status_code == 200:
         cronograma_html = response.json()["choices"][0]["message"]["content"]
         print(f"Cronograma en HTML: {cronograma_html}")
+        
         cronograma_html = extraer_html(cronograma_html)
+        request.session['cronograma_html'] = cronograma_html
+
         temario_html = markdown.markdown(temario_actual)
+        request.session['temario_html'] = temario_html
+
+        actividades_html = markdown.markdown(actividades)
+        request.session['actividades_html'] = actividades_html
 
         context = {
-            'id_datos_base': id_datos,
             'cronograma_html': cronograma_html,
-            'temario_html': temario_html  # Asegúrate de que esta variable contiene el HTML del temario
-
+            'temario_html': temario_html,  # Asegúrate de que esta variable contiene el HTML del temario
+            'actividades_html':actividades_html
         }
         return render(request, 'temarioApp/mostrar_cronograma.html', context)
     else:
@@ -361,64 +324,51 @@ def crear_cronograma(request):
         return render(request, 'temarioApp/mostrar_cronograma.html', context)
 
 def confirmar_cronograma(request):
+    print("variables pasadas a pdf")
+    for key, value in request.session.items():
+        print(f"{key}: {value}")
     if request.method == 'POST':
-        cronograma_final = request.POST.get('cronograma_final')
-        id_datos_base2 = request.POST.get('id_datos_base2')
-        print(id_datos_base2)
-        id_datos_base1 =  request.POST.get('id_datos_base')
-        print(id_datos_base1)
-        #temario_obj = Temario.objects.filter(datos_base_id=id_datos_base2)
-        #if(temario_obj.count ==0 ):
-        #    temario_obj = Temario.objects.filter(datos_base_id=id_datos_base1)
-        #temario_base = temario_obj.contenido
-        #try:
-        #    datos_base = get_object_or_404(DatosBase, id=id_datos_base1)
-        #except Exception as e:
-        #    datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
-        # Guarda el cronograma en la base de datos
-        #datos_base = get_object_or_404(DatosBase, id=id_datos_base2)
-        datos_base = DatosBase.objects.last()
-        temario = Temario.objects.last()
+        # Obtener los datos de la sesión
+        cronograma_html = request.session.get('cronograma_html')
+        temario_html = request.session.get('temario_html')
+        actividades_html = request.session.get('actividades_html')
         
-        nuevo_cronograma = Cronograma.objects.create(
-            cronograma=cronograma_final,
-            datos_base=datos_base
-        )
-        nuevo_cronograma.save()
-        #ahora que ya tengo cronograma y temario, mandar los datos al template
-        dias = datos_base.dias
-        horario = datos_base.horario
-        titulo = datos_base.titulo
-        cantidad_participantes = datos_base.cantidad_participantes
-        instructor = datos_base.instructor
-        objetivo = datos_base.objetivo
-        descripcion = datos_base.descripcion
-        nivel_del_curso = datos_base.nivel_del_curso
-        modalidad = datos_base.modalidad
-        materiales_necesarios = datos_base.materiales_necesarios
-        fecha_creacion = datos_base.fecha_creacion
+        dias = request.session.get('dias')
+        horario = request.session.get('horario')
+        titulo = request.session.get('titulo')
+        cantidad_participantes = request.session.get('participantes')
+        instructor = request.session.get('instructor')
+        objetivo = request.session.get('objetivo')
+        descripcion = request.session.get('descripcion')
+        nivel_del_curso = request.session.get('nivel')
+        modalidad = request.session.get('modalidad')
+        materiales_necesarios = request.session.get('materiales')
+        fecha_creacion = None  # Fecha de creación no disponible en la sesión
+
         # Generar PDF del cronograma
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="cronograma_{datos_base.titulo}.pdf"'
-        temario_html = markdown.markdown(temario.contenido)
+        response['Content-Disposition'] = f'attachment; filename="cronograma_{titulo}.pdf"'
+
         context = {
-            'cronograma': cronograma_final, 
-            'temario':temario_html, 
-            'dias':dias,
-            'horario':horario,
-            'titulo':titulo,
-            'cantidad_participantes':cantidad_participantes,
-            'instructor':instructor,
-            'objetivo':objetivo,
-            'descripcion':descripcion,
-            'nivel_del_curso':nivel_del_curso,
-            'modalidad':modalidad,
-            'materiales_necesarios':materiales_necesarios,
-            'fecha_creacion':fecha_creacion
-            }
+            'cronograma': cronograma_html,
+            'temario': temario_html,
+            'actividades': actividades_html,
+            'dias': dias,
+            'horario': horario,
+            'titulo': titulo,
+            'cantidad_participantes': cantidad_participantes,
+            'instructor': instructor,
+            'objetivo': objetivo,
+            'descripcion': descripcion,
+            'nivel_del_curso': nivel_del_curso,
+            'modalidad': modalidad,
+            'materiales_necesarios': materiales_necesarios,
+            'fecha_creacion': fecha_creacion
+        }
+
         # Renderizar el HTML del cronograma
-        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', context )
-    
+        html_string = render_to_string('temarioApp/cronograma_pdf_template.html', context)
+
         # Convertir HTML a PDF
         html = HTML(string=html_string)
         result = html.write_pdf()
